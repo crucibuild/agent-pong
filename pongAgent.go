@@ -21,7 +21,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/crucibuild/agent-go-examples/example/schema"
+	"github.com/crucibuild/agent-pong/schema"
 	"github.com/crucibuild/sdk-agent-go/agentiface"
 	"github.com/crucibuild/sdk-agent-go/agentimpl"
 )
@@ -107,10 +107,10 @@ func (a *PongAgent) init() error {
 
 	// register types
 	// register types
-	if _, err := a.TypeRegister(agentimpl.NewTypeFromType("crucibuild/agent-example-go#tested-event", example.TestedEventType)); err != nil {
+	if _, err := a.TypeRegister(agentimpl.NewTypeFromType("crucibuild/agent-pong#tested-event", schema.TestedEventType)); err != nil {
 		return err
 	}
-	if _, err := a.TypeRegister(agentimpl.NewTypeFromType("crucibuild/agent-example-go#test-command", example.TestCommandType)); err != nil {
+	if _, err := a.TypeRegister(agentimpl.NewTypeFromType("crucibuild/agent-pong#test-command", schema.TestCommandType)); err != nil {
 		return err
 	}
 
@@ -123,7 +123,7 @@ func (a *PongAgent) init() error {
 func (a *PongAgent) onStateChange(state agentiface.State) error {
 	switch state {
 	case agentiface.StateConnected:
-		if _, err := a.RegisterCommandCallback("crucibuild/agent-example-go#test-command", a.onTestCommand); err != nil {
+		if _, err := a.RegisterCommandCallback("crucibuild/agent-pong#test-command", a.onTestCommand); err != nil {
 			return err
 		}
 	}
@@ -132,11 +132,11 @@ func (a *PongAgent) onStateChange(state agentiface.State) error {
 }
 
 func (a *PongAgent) onTestCommand(ctx agentiface.CommandCtx) error {
-	cmd := ctx.Message().(*example.TestCommand)
+	cmd := ctx.Message().(*schema.TestCommand)
 
 	a.Info(fmt.Sprintf("Received test-command: '%s' '%s' '%d' ", cmd.Foo.Z, cmd.Value, cmd.X))
 
 	// reply with a tested event
 
-	return ctx.SendEvent(&example.TestedEvent{Value: "pong"})
+	return ctx.SendEvent(&schema.TestedEvent{Value: "pong"})
 }
