@@ -1,17 +1,15 @@
-/* Copyright (C) 2016 Christophe Camel, Jonathan Pigrée
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright (C) 2016 Christophe Camel, Jonathan Pigrée
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package main
 
@@ -26,13 +24,17 @@ import (
 	"github.com/crucibuild/sdk-agent-go/agentimpl"
 )
 
+// Resources represents an handler on the various data files
+// Used by the agent(avro files, manifest, etc...).
 var Resources http.FileSystem
 
+// PongAgent is an implementation over the Agent implementation
+// available in sdk-agent-go.
 type PongAgent struct {
 	*agentimpl.Agent
 }
 
-func MustOpenResources(path string) []byte {
+func mustOpenResources(path string) []byte {
 	file, err := Resources.Open(path)
 
 	if err != nil {
@@ -48,10 +50,11 @@ func MustOpenResources(path string) []byte {
 	return content
 }
 
+// NewPongAgent creates a new instance of PongAgent.
 func NewPongAgent() (agentiface.Agent, error) {
 	var agentSpec map[string]interface{}
 
-	manifest := MustOpenResources("/resources/manifest.json")
+	manifest := mustOpenResources("/resources/manifest.json")
 
 	err := json.Unmarshal(manifest, &agentSpec)
 
@@ -82,25 +85,23 @@ func (a *PongAgent) register(rawAvroSchema string) error {
 		return err
 	}
 
-	a.SchemaRegister(s)
-
-	return nil
+	_, err = a.SchemaRegister(s)
+	return err
 }
 
 func (a *PongAgent) init() error {
 	// register schemas:
-	var content []byte
-	content = MustOpenResources("/schema/header.avro")
+	var content = mustOpenResources("/schema/header.avro")
 	if err := a.register(string(content[:])); err != nil {
 		return err
 	}
 
-	content = MustOpenResources("/schema/test-command.avro")
+	content = mustOpenResources("/schema/test-command.avro")
 	if err := a.register(string(content[:])); err != nil {
 		return err
 	}
 
-	content = MustOpenResources("/schema/tested-event.avro")
+	content = mustOpenResources("/schema/tested-event.avro")
 	if err := a.register(string(content[:])); err != nil {
 		return err
 	}
